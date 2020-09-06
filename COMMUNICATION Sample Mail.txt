@@ -1,0 +1,9 @@
+Hi Chris,
+We are requested to extend the sprint complete date of the current sprint feature because our teste found some bugs during the export report in pdf using the IE 11 browser. Currently, we are using the htmlToPdf library for converting the HTML template in canvas view for export at PDF. During testing, we found IE 11 not supporting the SVG element of graphs. We found a new library canvg, we can use it for export pdf in IE 11. 
+Can you please extend the sprint complete date so we can resolve this and deliver this export feature in the current sprint or can we disable this feature in IE 11 browser for this sprint and create a new task as a bug on the next sprint, so we have proper time to test all scenario with all required browser.
+
+Regards,
+Shubham Vijay Vargiy                                                        
+Tech Lead/ Senior Full-stack Developer
+Email: svijay1692@gmail.com
+Contact No: +91-8952988681
