@@ -34,29 +34,20 @@ app.post('/upload', async (req, res) => {
     const mainFiles = filePath.split('_').reduce((o, k) => o && o[k] ? o[k] : o[k] = {}, files);
     const newFileName = '0000'.substring(0, '0000'.length - ((Object.keys(mainFiles).length + 1).toString()).length) + ((Object.keys(mainFiles).length + 1).toString());
     mainFiles[newFileName] = true;
-    doc.mv(`${__dirname}/delivery/${filePath.replace(/_/g, '/')}/${newFileName}.${fileExt}`, function (err) {
+    doc.mv(`${__dirname}/delivery/${filePath.replace(/_/g, '/')}/${newFileName}.${fileExt}`,async function (err) {
         if (err) {
             return res.status(500).send(err);
         }
-        res.send(files);
+        const paths = await getFiles();
+        res.send(paths);
     });
 });
 /**
  * This api for fetch all uploaded file information from server
  */
-app.get('/files',async (req, res) => {
-    const fileInformation = await nodeResursiveDir(`${__dirname}/delivery`, true); // add true
-    fileInformation.forEach(file => {
-        const filePath = file.filePath.replace(`${__dirname}/delivery`, '');
-        filePath.split('/').reduce((a, b) => {
-            if (b[a]) {
-                return b[a]
-            } else {
-                b[a] = {}
-            }
-        }, files)
-    });
-    res.status(200).send(files)
+app.get('/files', async (req, res) => {
+    const paths = await getFiles();
+    res.status(200).send(paths)
 });
 
 /**
@@ -68,3 +59,38 @@ app.get('/*', (req, res) => {
 
 // Start the app by listening on the default Heroku port
 app.listen(process.env.PORT || 8000);
+
+/**
+ * This method used for get file path
+ */
+
+async function getFiles() {
+    const paths = {};
+    const fileInformation = await nodeResursiveDir(`${__dirname}/delivery`, true); // add true
+    fileInformation.forEach(file => {
+        console.log(file)
+        const filePath = file.filepath.split('/delivery/')[1];
+        let count = 0;
+        const pathOfObj = filePath.split('/');
+        pathOfObj.pop();
+        pathOfObj.reduce((a, b) => {
+            count++;
+            console.log(a, b, a[b])
+            if (a[b]) {
+                if (count === pathOfObj.length) {
+                    a[b] ? '' : a[b] = {};
+                    return a[b][file.filename.split('.')[0]] = true;
+                }
+                return a[b];
+            } else {
+                if (count === pathOfObj.length) {
+                    a[b] ? '' : a[b] = {};
+                    return a[b][file.filename.split('.')[0]] = true;
+                }
+                return a[b] = {};
+            }
+
+        }, paths)
+    });
+    return paths
+}
