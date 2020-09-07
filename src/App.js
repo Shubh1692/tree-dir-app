@@ -2,21 +2,7 @@ import React, { useState, useEffect, Fragment } from 'react';
 import './App.css';
 
 function App() {
-  const [files, setFiles] = useState({
-    "202009050707": {
-      "PROJECTNAME": {
-        "SHOTNAME": {
-          "TASKNAME": {
-            "EXE": {
-              "0001": true,
-              "0002": true,
-              "0003": true
-            }
-          }
-        }
-      }
-    }
-  });
+  const [files, setFiles] = useState({});
   const [inputValue, setInput] = useState('');
   const [fileValue, setfile] = useState(null);
   useEffect(() => {
@@ -29,8 +15,6 @@ function App() {
   const getFiles = async () => {
     const getFilesReq = await fetch(`${window.location.host.includes('localhost') ? 'http://localhost:8000/' : '/'}files`);
     const getFilesRes = await getFilesReq.json();
-    setInput('');
-    setfile(null);
     setFiles(getFilesRes);
   };
 
@@ -84,6 +68,8 @@ function App() {
       body: formData
     });
     const setFilesRes = await setFilesReq.json();
+    setInput('');
+    setfile(null);
     setFiles(setFilesRes);
 
   }
