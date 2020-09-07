@@ -16,8 +16,8 @@
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  /* display: flex;
+  flex-direction: column; */
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
@@ -40,15 +40,9 @@
 
 ul, #myUL {
   list-style-type: none;
-  padding: 0 !important; 
 }
 
-#myUL {
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-self: start;;
-}
+
 
 .caret {
   cursor: pointer;

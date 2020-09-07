@@ -18,6 +18,7 @@ function App() {
     }
   });
   const [inputValue, setInput] = useState('');
+  const [fileValue, setfile] = useState(null);
   useEffect(() => {
     getFiles();
   }, []);
@@ -29,9 +30,13 @@ function App() {
   };
 
   const onToggle = (e) => {
+    console.log('call')
+    e.preventDefault();
     e.target.parentElement.querySelector(".nested").classList.toggle("active");
     e.target.classList.toggle("caret-down");
   }
+
+
 
   const renderTreeNode = (nodeName, node) => {
     if (typeof node === 'object' && Object.keys(node).length) {
@@ -39,46 +44,57 @@ function App() {
         <Fragment>
           {Object.keys(node).map((nodeName) => {
             return (
-              <div onClick={(e) => onToggle(e)}>
-              <ul className="nested" onClick={(e) => onToggle(e)}>
-                <li>
-                  {typeof node[nodeName] === 'object' ? <span className="caret">{nodeName}</span> : <span className="">{nodeName}</span>}
-                  {renderTreeNode(nodeName, node[nodeName])}
-                </li>
-              </ul>
-              </div>
+              <ul className="nested">
+              <li>
+                {typeof node[nodeName] === 'object' ? <span  onClick={(e) => onToggle(e)}  className="caret">{nodeName}</span> : <span className="">{nodeName}</span>}
+                {renderTreeNode(nodeName, node[nodeName])}
+              </li>
+            </ul>
             )
           })}
         </Fragment>
       )
     }
   };
-  console.log("files", files)
+  const onSubmit = async () => {
+    const formData = new FormData();
+    formData.append('doc', fileValue)
+    formData.append('filePath', inputValue)
+    const setFilesReq = await fetch(`${window.location.host.includes('localhost') ? 'http://localhost:8000/' : '/'}upload`, {
+      method: 'POST',
+      body: formData
+    });
+    const setFilesRes = await setFilesReq.json();
+    console.log(setFilesRes);
+
+  }
   return (
 
     <div className="App">
       <div className="d-flex">
         <form onSubmit={(e) => {
           e.preventDefault();
+          onSubmit();
         }}>
           <div className="autocomplete">
             <div className="search-input">
               <input id="myInput" type="text" value={inputValue} placeholder="eg: PROJECTNAME_SHOTNAME_TASKNAME" onChange={(e) => setInput(e.target.value)} />
-              <input type="submit" value="Execute" />
+              <input id="myInput" type="file" onChange={(e) => setfile(e.target.files[0])} />
+              <input disabled={!inputValue || !inputValue.trim().length || !fileValue} type="submit" value="Execute" />
               <input type="button" value="Cancel" onClick={() => {
                 setInput('');
+                setfile(null)
               }} />
             </div>
           </div>
         </form>
       </div>
-      <ul id="myUL"  onClick={(e) => onToggle(e)} >
+      <ul id="myUL" >
         {Object.keys(files).map((nodeName) => {
           return (
-            <Fragment>
-              <li><span className="caret">{nodeName}</span>
-                {renderTreeNode(nodeName, files[nodeName])} </li>
-            </Fragment>
+            <li><span onClick={(e) => onToggle(e)}  className="caret">{nodeName}</span>
+              {renderTreeNode(nodeName, files[nodeName])}
+            </li>
           )
         })}
       </ul>

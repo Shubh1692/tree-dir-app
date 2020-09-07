@@ -5,6 +5,8 @@ const fs = require('fs');
 const fileUpload = require('express-fileupload');
 const moment = require('moment');
 const cors = require('cors');
+const path = require('path');
+const nodeResursiveDir = require('node-recursive-directory');
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(fileUpload({}));
@@ -28,11 +30,11 @@ app.post('/upload', async (req, res) => {
     const { doc } = req.files;
     const fileExt = doc.name.split('.')[doc.name.split('.').length - 1];
     let filePath = `${moment().format('YYYYMMDDhhmm')}_${req.body.filePath || 'PROJECTNAME_SHOTNAME_TASKNAME'}_${fileExt.toUpperCase()}`;
-    await fs.promises.mkdir(`${__dirname}/${filePath.replace(/_/g, '/')}`, { recursive: true });
+    await fs.promises.mkdir(`${__dirname}/delivery/${filePath.replace(/_/g, '/')}`, { recursive: true });
     const mainFiles = filePath.split('_').reduce((o, k) => o && o[k] ? o[k] : o[k] = {}, files);
     const newFileName = '0000'.substring(0, '0000'.length - ((Object.keys(mainFiles).length + 1).toString()).length) + ((Object.keys(mainFiles).length + 1).toString());
     mainFiles[newFileName] = true;
-    doc.mv(`${__dirname}/${filePath.replace(/_/g, '/')}/${newFileName}.${fileExt}`, function (err) {
+    doc.mv(`${__dirname}/delivery/${filePath.replace(/_/g, '/')}/${newFileName}.${fileExt}`, function (err) {
         if (err) {
             return res.status(500).send(err);
         }
@@ -42,10 +44,19 @@ app.post('/upload', async (req, res) => {
 /**
  * This api for fetch all uploaded file information from server
  */
-app.get('/files', (req, res) => {
-    res.status(200).send({
-        files
+app.get('/files',async (req, res) => {
+    const fileInformation = await nodeResursiveDir(`${__dirname}/delivery`, true); // add true
+    fileInformation.forEach(file => {
+        const filePath = file.filePath.replace(`${__dirname}/delivery`, '');
+        filePath.split('/').reduce((a, b) => {
+            if (b[a]) {
+                return b[a]
+            } else {
+                b[a] = {}
+            }
+        }, files)
     });
+    res.status(200).send(files)
 });
 
 /**

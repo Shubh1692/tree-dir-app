@@ -1,6 +1,6 @@
 body {
   display: flex;
-  align-items: stretch;
+  align-items: flex-start;
   justify-content: flex-start;
   flex-direction: column;
   width: 100%;
@@ -64,6 +64,10 @@ input[type=button] {
   color: #fff;
   cursor: pointer;
   max-width: 100px;
+}
+
+input[type=file] {
+  width: 300px;
 }
 
 .search-input {
